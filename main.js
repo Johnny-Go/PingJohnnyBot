@@ -1,5 +1,5 @@
 // Setup our environment variables via dotenv
-require('dotenv').config()
+require('dotenv').config();
 
 // Import relevant classes
 const { Client, Intents } = require('discord.js');
@@ -15,7 +15,7 @@ const client = new Client(
 
 // Notify progress
 client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`)
+    console.log(`Logged in as ${client.user.tag}!`);
 })
 
 const getJohnny = async (guildId) => {
@@ -60,20 +60,25 @@ setInterval(async () => {
                     //get all the server ids
                     const guildIds = client.guilds.cache.map(guild => guild.id);
 
-                    //find johnny
+                    //find johnny in server and ping him if he exists 
                     let johnny = null;
                     for(let i = 0; i < guildIds.length; i++) {
                         johnny = await getJohnny(guildIds[i]);
                         if(johnny) {
-                            const channel = client.channels.cache.find(ch => ch.name === 'announcements');
-                            channel.send(`Hey ${johnny} Jaek is live at https://www.twitch.tv/${element.user_name}`);
-                            break;
+                            const guild = client.guilds.cache.get(guildIds[i]);
+                            console.log(`Pinging Johnny in ${guild.name}`);
+                            const channel = guild.channels.cache.find(ch => ch.name === 'announcements');
+                            channel.send(`Hey ${johnny} Jaek is live at https://www.twitch.tv/${element.user_name}`)
+                                .catch(e => console.log(e));
                         }
                     }
                 });
             } else if (response.data.data.length == 0) {
                 //set goneLive to false if jaek is offline
-                goneLive = false;
+                if(goneLive) {
+                    console.log(`Jake has gone offline`);
+                    goneLive = false;
+                }
             }
         })
         //log any errors
@@ -85,7 +90,7 @@ setInterval(async () => {
     .catch(function (error) {
         console.log(error);
     });
-}, 1 * 60 * 1000)
+}, 1 * 60 * 1000);
 
 // Authenticate
-client.login(process.env.DISCORD_TOKEN)
+client.login(process.env.DISCORD_TOKEN);
